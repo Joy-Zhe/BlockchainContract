@@ -23,10 +23,10 @@ jobs:
         with:
           context: application/server
           push: true
-          tags: togettoyou/fabric-realty.server:latest
+          tags: joyzheng2003/blockchain-contract.server:latest
       - name: Build and push application.web
         uses: docker/build-push-action@v2
         with:
           context: application/web
           push: true
-          tags: togettoyou/fabric-realty.web:latest
+          tags: joyzheng2003/blockchain-contract.web:latest
