@@ -392,3 +392,43 @@ func closeSelling(closeStart string, selling model.Selling, realEstate model.Rea
 		return nil, nil
 	}
 }
+
+
+
+// 新增
+//输入信息为部门名，私钥签名，合同文本
+func StartContract(stub shim.ChaincodeStubInterface,contractname string, departmentname string, signature string, contractcontent string) pb.Response {
+	// 验证参数
+	
+	if creatername == "" || signature == "" || contractcontent == "" || contractname == ""  {
+		return shim.Error("参数存在空值")
+	}
+	
+	//判断私钥签名是否属于此部门
+	/*
+	未完成
+	*/
+
+	//时间戳
+	createTime, _ := stub.GetTxTimestamp()
+
+	Contract_in_company := &model.Contract_in_company{
+		ContractName:       contractname,
+		ContractContent:    contractcontent,
+		CreaterName:        departmentname,
+		CreaterSign:        signature,
+		CreateTime:         createTime,
+
+	}
+	// 写入账本
+	if err := utils.WriteLedger(Contract_in_company, stub, "contract_key", []string{Contract_in_company.ContractName}); err != nil {
+		return shim.Error(fmt.Sprintf("%s", err))
+	}
+	//将成功创建的信息返回
+	Contract_in_company_Byte, err := json.Marshal(Contract_in_company)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("序列化成功创建的信息出错: %s", err))
+	}
+	// 成功返回
+	return shim.Success(Contract_in_company_Byt)
+}
