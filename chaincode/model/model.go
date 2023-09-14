@@ -88,10 +88,18 @@ const (
 	DonatingGranteeKey = "donating-grantee-key"
 )
 
+
 //新增
 type Contract_in_company struct {
 	ContractName  string  `json:"contractname"`
 	ContractContent  string  `json:"contractcontent"`  
 	CreaterName        string  `json:"creatername"`       
-	CreaterSign         string  `json:"creatercign"`       
+	CreaterSign         string  `json:"creatersign"`       
+}
+
+type Contract_among_company struct {
+	ContractName  string  `json:"contractname"`
+	ContractContent  string  `json:"contractcontent"`  
+	CreaterCompanyName        string  `json:"creatercompanyname"`       
+	CreaterCompanySign         string  `json:"creatercompanysign"`       
 }
