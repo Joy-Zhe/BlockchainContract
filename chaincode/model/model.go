@@ -87,3 +87,11 @@ const (
 	DonatingKey        = "donating-key"
 	DonatingGranteeKey = "donating-grantee-key"
 )
+
+//新增
+type Contract_in_company struct {
+	ContractName  string  `json:"contractname"`
+	ContractContent  string  `json:"contractcontent"`  
+	CreaterName        string  `json:"creatername"`       
+	CreaterSign         string  `json:"creatercign"`       
+}
