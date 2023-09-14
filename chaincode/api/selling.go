@@ -432,3 +432,34 @@ func StartContract(stub shim.ChaincodeStubInterface,contractname string, departm
 	// 成功返回
 	return shim.Success(Contract_in_company_Byt)
 }
+
+// 新增
+//输入信息为空（查询所有合同）和合同名称
+func QueryContract_incompany(stub shim.ChaincodeStubInterface, args[] string) pb.Response {
+	
+	if len(args) > 1 {
+		return shim.Error("参数个数错误")
+	}
+
+	var ContractList []model.Contract_in_company
+	
+	results, err := utils.GetStateByPartialCompositeKeys(stub, "contract_key", args)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("%s", err))
+	}
+	for _, v := range results {
+		if v != nil {
+			var contract_in_company model.Contract_in_company
+			err := json.Unmarshal(v, &contract_in_company)
+			if err != nil {
+				return shim.Error(fmt.Sprintf("QueryContract_incompany-反序列化出错: %s", err))
+			}
+			ContractList = append(ContractList, contract_in_company)
+		}
+	}
+	ContractListByte, err := json.Marshal(ContractList)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("QueryContract_incompany-序列化出错: %s", err))
+	}
+	return shim.Success(ContractListByte)
+}
