@@ -395,71 +395,131 @@ func closeSelling(closeStart string, selling model.Selling, realEstate model.Rea
 
 
 
-// 新增
-//输入信息为部门名，私钥签名，合同文本
-func StartContract(stub shim.ChaincodeStubInterface,contractname string, departmentname string, signature string, contractcontent string) pb.Response {
-	// 验证参数
-	
-	if creatername == "" || signature == "" || contractcontent == "" || contractname == ""  {
-		return shim.Error("参数存在空值")
+//新增
+//初始化
+func InitLedger(stub shim.ChaincodeStubInterface) pb.Response {
+	contract_in_company1 := &model.Contract_in_company{
+		ContractName: "Toyota", ContractContent: "Prius", CreaterName: "blue", CreaterSign: "Tomoko", CreateTime: "2006-01-02 15:04:05",
 	}
-	
-	//判断私钥签名是否属于此部门
-	/*
-	未完成
-	*/
-
-	//时间戳
-	createTime, _ := stub.GetTxTimestamp()
-
-	Contract_in_company := &model.Contract_in_company{
-		ContractName:       contractname,
-		ContractContent:    contractcontent,
-		CreaterName:        departmentname,
-		CreaterSign:        signature,
-		CreateTime:         createTime,
-
+	contract_in_company2 := &model.Contract_in_company{
+		ContractName: "Toyo", ContractContent: "Pri", CreaterName: "bl", CreaterSign: "Tomo", CreateTime: "2006-01-02 15:04:05",
 	}
-	// 写入账本
-	if err := utils.WriteLedger(Contract_in_company, stub, "contract_key", []string{Contract_in_company.ContractName}); err != nil {
+	if err := utils.WriteLedger(contract_in_company1, stub, "ContractName", []string{contract_in_company1.ContractName}); err != nil {
 		return shim.Error(fmt.Sprintf("%s", err))
 	}
-	//将成功创建的信息返回
-	Contract_in_company_Byte, err := json.Marshal(Contract_in_company)
+	if err := utils.WriteLedger(contract_in_company2, stub, "ContractName", []string{contract_in_company2.ContractName}); err != nil {
+		return shim.Error(fmt.Sprintf("%s", err))
+	}
+
+	contractByte2, err := json.Marshal(contract_in_company2)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("序列化成功创建的信息出错: %s", err))
 	}
 	// 成功返回
-	return shim.Success(Contract_in_company_Byt)
+	return shim.Success(contractByte2)
 }
 
-// 新增
-//输入信息为空（查询所有合同）和合同名称
-func QueryContract_incompany(stub shim.ChaincodeStubInterface, args[] string) pb.Response {
-	
-	if len(args) > 1 {
-		return shim.Error("参数个数错误")
+//创建合同
+func StartContract(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 4 {
+		return shim.Error(fmt.Sprintf("参数长度不满足"))
+	}
+	contractname := args[0]
+	departmentname := args[1]
+	signature := args[2]
+	contractcontent := args[3]
+	if departmentname == "" || signature == "" || contractcontent == "" || contractname == "" {
+		return shim.Error(fmt.Sprintf("输入存在空值"))
 	}
 
-	var ContractList []model.Contract_in_company
-	
-	results, err := utils.GetStateByPartialCompositeKeys(stub, "contract_key", args)
+	//判断私钥签名是否属于此部门
+	/*
+		未完成
+	*/
+
+	//时间戳
+	timeUnix := time.Now().Unix() //时间戳
+	createTime := time.Unix(timeUnix, 0).Format("2006-01-02 15:04:05")
+	contract_in_company := model.Contract_in_company{
+		ContractName:    contractname,
+		ContractContent: contractcontent,
+		CreaterName:     departmentname,
+		CreaterSign:     signature,
+		CreateTime:      createTime,
+	}
+	if err := utils.WriteLedger(contract_in_company, stub, "ContractName", []string{contract_in_company.ContractName}); err != nil {
+		return shim.Error(fmt.Sprintf("%s", err))
+	}
+
+	contractByte, err := json.Marshal(contract_in_company)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("序列化成功创建的信息出错: %s", err))
+	}
+	return shim.Success(contractByte)
+}
+
+//按照合同名查询&查询全部
+func QueryContract_incompany(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
+	results, err := utils.GetStateByPartialCompositeKeys2(stub, "ContractName", args)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("%s", err))
 	}
+	var contractList []model.Contract_in_company
 	for _, v := range results {
 		if v != nil {
-			var contract_in_company model.Contract_in_company
-			err := json.Unmarshal(v, &contract_in_company)
+			var contract model.Contract_in_company
+			err := json.Unmarshal(v, &contract)
 			if err != nil {
 				return shim.Error(fmt.Sprintf("QueryContract_incompany-反序列化出错: %s", err))
 			}
-			ContractList = append(ContractList, contract_in_company)
+			contractList = append(contractList, contract)
 		}
 	}
-	ContractListByte, err := json.Marshal(ContractList)
+
+	contractListByte, err := json.Marshal(contractList)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("QueryContract_incompany-序列化出错: %s", err))
 	}
-	return shim.Success(ContractListByte)
+	return shim.Success(contractListByte)
+
 }
+
+// 审核，生成放入跨公司区块的文本【需要调用公司间区块的链码ContractSanction_upload上传】
+func ContractSanction(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 3 {
+		return shim.Error(fmt.Sprintf("参数长度不满足"))
+	}
+	company_name := args[0]
+	signature := args[1]
+	ContractName := args[2]
+	var query_args []string
+	query_args = append(query_args, ContractName)
+	results, err := utils.GetStateByPartialCompositeKeys2(stub, "ContractName", query_args)
+	if len(results) != 1 {
+		return shim.Error(fmt.Sprintf("出现重复的合同名"))
+	}
+	v := results[0]
+	var contract model.Contract_in_company
+	err1 := json.Unmarshal(v, &contract)
+	if err1 != nil {
+		return shim.Error(fmt.Sprintf("反序列化出错: %s", err1))
+	}
+
+	timeUnix := time.Now().Unix() //时间戳
+	createTime := time.Unix(timeUnix, 0).Format("2006-01-02 15:04:05")
+
+	contract_among_company := model.Contract_among_company{
+		ContractName:       contract.ContractName,
+		ContractContent:    contract.ContractContent,
+		CreaterCompanyName: company_name,
+		CreaterCompanySign: signature,
+		CreateTime:         createTime,
+	}
+	contractByte, err := json.Marshal(contract_among_company)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
+	}
+	return shim.Success(contractByte)
+}
+
