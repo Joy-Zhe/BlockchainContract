@@ -37,7 +37,36 @@ func checkInvoke(t *testing.T, stub *shim.MockStub, args [][]byte) pb.Response {
 
 // 测试链码初始化
 func TestBlockChainRealEstate_Init(t *testing.T) {
-	initTest(t)
+	stub := initTest(t)
+	fmt.Println(fmt.Sprintf("1、初始化\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("InitLedger"),
+		}).Payload)))
+
+	fmt.Println(fmt.Sprintf("2、创建合同\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("StartContract"),
+			[]byte("6b273ff34"),
+			[]byte("StartContract"),
+			[]byte("6b273ff34"),
+			[]byte("6b34"),
+		}).Payload)))
+	fmt.Println(fmt.Sprintf("3、查询合同\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("QueryContract_incompany"),
+			[]byte("6b273ff34"),
+		}).Payload)))
+	fmt.Println(fmt.Sprintf("3、查询合同\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("QueryContract_incompany"),
+		}).Payload)))
+	fmt.Println(fmt.Sprintf("4、签署合同\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("ContractSanction"),
+			[]byte("taobao"),
+			[]byte("mayun"),
+			[]byte("6b273ff34"),
+		}).Payload)))
 }
 
 // 测试获取账户信息
