@@ -89,17 +89,19 @@ const (
 )
 
 
+
 //新增
 type Contract_in_company struct {
-	ContractName  string  `json:"contractname"`
-	ContractContent  string  `json:"contractcontent"`  
-	CreaterName        string  `json:"creatername"`       
-	CreaterSign         string  `json:"creatersign"`       
+	ContractName    string `json:"contractname"`
+	ContractContent string `json:"contractcontent"`
+	CreaterName     string `json:"creatername"`
+	CreaterSign     string `json:"creatersign"`
+	CreateTime      string `json:"creatertime"`
 }
-
 type Contract_among_company struct {
-	ContractName  string  `json:"contractname"`
-	ContractContent  string  `json:"contractcontent"`  
-	CreaterCompanyName        string  `json:"creatercompanyname"`       
-	CreaterCompanySign         string  `json:"creatercompanysign"`       
+	ContractName       string `json:"contractname"`
+	ContractContent    string `json:"contractcontent"`
+	CreaterCompanyName string `json:"creatercompanyname"`
+	CreaterCompanySign string `json:"creatercompanysign"`
+	CreateTime         string `json:"creatertime"`
 }
