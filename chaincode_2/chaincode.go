@@ -47,32 +47,7 @@ func (t *BlockChainRealEstate) Init(stub shim.ChaincodeStubInterface) pb.Respons
 func (t *BlockChainRealEstate) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	funcName, args := stub.GetFunctionAndParameters()
 	switch funcName {
-	case "hello":
-		return api.Hello(stub, args)
-	case "queryAccountList":
-		return api.QueryAccountList(stub, args)
-	case "createRealEstate":
-		return api.CreateRealEstate(stub, args)
-	case "queryRealEstateList":
-		return api.QueryRealEstateList(stub, args)
-	case "createSelling":
-		return api.CreateSelling(stub, args)
-	case "createSellingByBuy":
-		return api.CreateSellingByBuy(stub, args)
-	case "querySellingList":
-		return api.QuerySellingList(stub, args)
-	case "querySellingListByBuyer":
-		return api.QuerySellingListByBuyer(stub, args)
-	case "updateSelling":
-		return api.UpdateSelling(stub, args)
-	case "createDonating":
-		return api.CreateDonating(stub, args)
-	case "queryDonatingList":
-		return api.QueryDonatingList(stub, args)
-	case "queryDonatingListByGrantee":
-		return api.QueryDonatingListByGrantee(stub, args)
-	case "updateDonating":
-		return api.UpdateDonating(stub, args)
+	
 		//新增
 	case "InitLedger":
 		return api.InitLedger(stub)
