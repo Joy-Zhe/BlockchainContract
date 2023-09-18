@@ -397,10 +397,10 @@ func closeSelling(closeStart string, selling model.Selling, realEstate model.Rea
 //初始化
 func InitLedger(stub shim.ChaincodeStubInterface) pb.Response {
 	contract_among_company1 := &model.Contract_among_company{
-		ContractName: "C1", ContractContent: "Prius", CreaterCompanyName: "taobao", CreaterCompanySign: "Tomoko", CreateTime: "2006-01-02 15:04:05",
+		ContractName: "C1", ContractContent: "Prius", CreaterCompanyName: "taobao", CreaterCompanySign: "Tomoko", SignTime: "2006-01-02 15:04:05",
 	}
 	contract_among_company2 := &model.Contract_among_company{
-		ContractName: "C2", ContractContent: "Pri", CreaterCompanyName: "Tianmao", CreaterCompanySign: "Tomo", CreateTime: "2006-01-02 15:04:05",
+		ContractName: "C2", ContractContent: "Pri", CreaterCompanyName: "Tianmao", CreaterCompanySign: "Tomo", SignTime: "2006-01-02 15:04:05",
 	}
 	if err := utils.WriteLedger(contract_among_company1, stub, "ContractName", []string{contract_among_company1.ContractName}); err != nil {
 		return shim.Error(fmt.Sprintf("%s", err))
@@ -420,23 +420,24 @@ func InitLedger(stub shim.ChaincodeStubInterface) pb.Response {
 //创建合同
 func ContractSanction_upload(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
-	contract_in_company_Byte := args[0]
-	companyname := args[1]
-	companysignature := args[2]
+	contract_among_company_Byte := args[0]
+	fmt.Printf("arg:%v\n", args[0])
+	/*companyname := args[1]
+	companysignature := args[2]*/
 
-	var contract_in_company model.Contract_in_company
-	err := json.Unmarshal([]byte(contract_in_company_Byte), &contract_in_company)
+	var contract_among_company model.Contract_among_company
+	err := json.Unmarshal([]byte(contract_among_company_Byte), &contract_among_company)
 
-	contractname := contract_in_company.ContractName
-	contractcontent := contract_in_company.ContractContent
+	/*contractname := contract_among_company.ContractName
+	contractcontent := contract_among_company.ContractContent*/
 	//判断私钥签名是否属于此部门
 	/*
 		未完成
 	*/
 
 	//时间戳
-	timeUnix := time.Now().Unix() //时间戳
-	createTime := time.Unix(timeUnix, 0).Format("2006-01-02 15:04:05")
+	/*timeUnix := time.Now().Unix() //时间戳
+	signtime := time.Unix(timeUnix, 0).Format("2006-01-02 15:04:05")
 	contract_among_company := model.Contract_among_company{
 		ContractName:       contractname,
 		ContractContent:    contractcontent,
@@ -444,6 +445,8 @@ func ContractSanction_upload(stub shim.ChaincodeStubInterface, args []string) pb
 		CreaterCompanySign: companysignature,
 		CreateTime:         createTime,
 	}
+	//更新时间
+	contract_among_company.SignTime = signtime*/
 	if err := utils.WriteLedger(contract_among_company, stub, "ContractName", []string{contract_among_company.ContractName}); err != nil {
 		return shim.Error(fmt.Sprintf("%s", err))
 	}
@@ -452,6 +455,7 @@ func ContractSanction_upload(stub shim.ChaincodeStubInterface, args []string) pb
 	if err != nil {
 		return shim.Error(fmt.Sprintf("序列化成功创建的信息出错: %s", err))
 	}
+
 	return shim.Success(contractByte)
 }
 
