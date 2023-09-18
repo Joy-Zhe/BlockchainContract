@@ -95,11 +95,13 @@ type Contract_in_company struct {
 	CreaterName     string `json:"creatername"`
 	CreaterSign     string `json:"creatersign"`
 	CreateTime      string `json:"creatertime"`
+	CompanyName     string `json:"companyname"`
 }
 type Contract_among_company struct {
 	ContractName       string `json:"contractname"`
 	ContractContent    string `json:"contractcontent"`
 	CreaterCompanyName string `json:"creatercompanyname"`
 	CreaterCompanySign string `json:"creatercompanysign"`
-	CreateTime         string `json:"creatertime"`
+	SignTime           string `json:"signtime"`
 }
+
