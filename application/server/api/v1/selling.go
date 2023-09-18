@@ -191,3 +191,180 @@ func UpdateSelling(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, "成功", data)
 }
+
+//新建
+type Contract_in_company struct {
+	ContractName    string `json:"contractname"`
+	ContractContent string `json:"contractcontent"`
+	CreaterName     string `json:"creatername"`
+	CreaterSign     string `json:"creatersign"`
+	CreateTime      string `json:"creatertime"`
+	CompanyName     string `json:"companyname"`
+}
+type Contract_among_company struct {
+	ContractName       string `json:"contractname"`
+	ContractContent    string `json:"contractcontent"`
+	CreaterCompanyName string `json:"creatercompanyname"`
+	CreaterCompanySign string `json:"creatercompanysign"`
+	SignTime           string `json:"signtime"`
+}
+
+type Contract_request struct {
+	ContractName string `json:"contractname"`
+	CompanyName  string `json:"companyname"`
+}
+type Contract_sanction struct {
+	ContractName string `json:"contractname"`
+	CompanyName  string `json:"companyname"`
+	CompanySign  string `json:"companysign"`
+}
+
+func StartContract(c *gin.Context) {
+	//companyname string, contractname string, departmentname string, signature string, contractcontent string
+	appG := app.Gin{C: c}
+	body := new(Contract_in_company)
+	//解析Body参数
+	if err := c.ShouldBind(body); err != nil {
+		appG.Response(http.StatusBadRequest, "失败", fmt.Sprintf("参数出错%s", err.Error()))
+		return
+	}
+	if body.ContractName == "" || body.ContractContent == "" || body.CompanyName == "" || body.CreaterName == "" || body.CreaterSign == "" {
+		appG.Response(http.StatusBadRequest, "失败", "参数不能为空")
+		return
+	}
+	var bodyBytes [][]byte
+	bodyBytes = append(bodyBytes, []byte(body.ContractName))
+	bodyBytes = append(bodyBytes, []byte(body.CreaterName))
+	bodyBytes = append(bodyBytes, []byte(body.CreaterSign))
+	bodyBytes = append(bodyBytes, []byte(body.ContractContent))
+	//调用智能合约
+	resp, err := bc.ChannelExecute_new("StartContract", body.CompanyName, bodyBytes)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	var data map[string]interface{}
+	if err = json.Unmarshal(bytes.NewBuffer(resp.Payload).Bytes(), &data); err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	appG.Response(http.StatusOK, "成功", data)
+}
+
+func QueryContract_incompany(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body := new(Contract_request)
+	//解析Body参数
+	if err := c.ShouldBind(body); err != nil {
+		appG.Response(http.StatusBadRequest, "失败", fmt.Sprintf("参数出错%s", err.Error()))
+		return
+	}
+	if body.ContractName == "" || body.CompanyName == "" {
+		appG.Response(http.StatusBadRequest, "失败", "参数不能为空")
+		return
+	}
+	var bodyBytes [][]byte
+
+	bodyBytes = append(bodyBytes, []byte(body.ContractName))
+
+	//调用智能合约
+	resp, err := bc.ChannelQuery_new("QueryContract_incompany", body.CompanyName, bodyBytes)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	// 反序列化json
+	var data []map[string]interface{}
+	if err = json.Unmarshal(bytes.NewBuffer(resp.Payload).Bytes(), &data); err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	appG.Response(http.StatusOK, "成功", data)
+}
+
+//审核合同并上传
+func ContractSanction_upload(c *gin.Context) {
+
+	appG := app.Gin{C: c}
+	body := new(Contract_sanction)
+	//解析Body参数
+	if err := c.ShouldBind(body); err != nil {
+		appG.Response(http.StatusBadRequest, "失败", fmt.Sprintf("参数出错%s", err.Error()))
+		return
+	}
+	if body.ContractName == "" || body.CompanyName == "" || body.CompanySign == "" {
+		appG.Response(http.StatusBadRequest, "失败", "参数不能为空")
+		return
+	}
+	var bodyBytes_1 [][]byte
+	bodyBytes_1 = append(bodyBytes_1, []byte(body.CompanyName))
+	bodyBytes_1 = append(bodyBytes_1, []byte(body.CompanySign))
+	bodyBytes_1 = append(bodyBytes_1, []byte(body.ContractName))
+
+	//调用智能合约
+	resp_1, err := bc.ChannelQuery_new("ContractSanction", body.CompanyName, bodyBytes_1)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	// 反序列化json
+	/*var data_1 map[string]interface{}
+	if err = json.Unmarshal(bytes.NewBuffer(resp.Payload).Bytes(), &data_1); err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+
+	contract_among_company_new := Contract_among_company{
+		ContractName:       data_1["ContractName"].(string),
+		ContractContent:    data_1["ContractContent"].(string),
+		CreaterCompanyName: data_1["company_name"].(string),
+		CreaterCompanySign: data_1["signature"].(string),
+		SignTime:         data_1["signTime"].(string),
+	}*/
+
+	var bodyBytes_2 [][]byte
+	bodyBytes_2 = append(bodyBytes_2, []byte(string(resp_1.Payload)))
+	//定义公司间通道为"Among_Companies"
+	resp_2, err := bc.ChannelExecute_new("ContractSanction_upload", "Among_Companies", bodyBytes_2)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	var data map[string]interface{}
+	if err = json.Unmarshal(bytes.NewBuffer(resp_2.Payload).Bytes(), &data); err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	appG.Response(http.StatusOK, "成功", data)
+}
+
+func QueryContract_amongcompany_1(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body := new(Contract_request)
+	//解析Body参数
+	if err := c.ShouldBind(body); err != nil {
+		appG.Response(http.StatusBadRequest, "失败", fmt.Sprintf("参数出错%s", err.Error()))
+		return
+	}
+	if body.ContractName == "" {
+		appG.Response(http.StatusBadRequest, "失败", "参数不能为空")
+		return
+	}
+	var bodyBytes [][]byte
+
+	bodyBytes = append(bodyBytes, []byte(body.ContractName))
+
+	//调用智能合约
+	resp, err := bc.ChannelQuery_new("QueryContract_amongcompany", "Among_Companies", bodyBytes)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	// 反序列化json
+	var data []map[string]interface{}
+	if err = json.Unmarshal(bytes.NewBuffer(resp.Payload).Bytes(), &data); err != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err.Error())
+		return
+	}
+	appG.Response(http.StatusOK, "成功", data)
+}
