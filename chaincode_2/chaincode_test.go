@@ -50,8 +50,6 @@ func TestBlockChainRealEstate_Init(t *testing.T) {
 				"\"contractcontent\":\"6b34\",\"creatercompanyname\":" +
 				"\"taobao\",\"creatercompanysign\":\"mayun\",\"creatertime\":" +
 				"\"2023-09-15 20:51:15\"}"),
-			[]byte("baidu"),
-			[]byte("lyh"),
 		}).Payload)))
 	fmt.Println(fmt.Sprintf("3、查询合同\n%s",
 		string(checkInvoke(t, stub, [][]byte{
