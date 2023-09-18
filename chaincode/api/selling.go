@@ -393,16 +393,14 @@ func closeSelling(closeStart string, selling model.Selling, realEstate model.Rea
 	}
 }
 
-
-
 //新增
 //初始化
 func InitLedger(stub shim.ChaincodeStubInterface) pb.Response {
 	contract_in_company1 := &model.Contract_in_company{
-		ContractName: "Toyota", ContractContent: "Prius", CreaterName: "blue", CreaterSign: "Tomoko", CreateTime: "2006-01-02 15:04:05",
+		ContractName: "Toyota", ContractContent: "Prius", CreaterName: "blue", CreaterSign: "Tomoko", CreateTime: "2006-01-02 15:04:05", CompanyName: "A",
 	}
 	contract_in_company2 := &model.Contract_in_company{
-		ContractName: "Toyo", ContractContent: "Pri", CreaterName: "bl", CreaterSign: "Tomo", CreateTime: "2006-01-02 15:04:05",
+		ContractName: "Toyo", ContractContent: "Pri", CreaterName: "bl", CreaterSign: "Tomo", CreateTime: "2006-01-02 15:04:05", CompanyName: "A",
 	}
 	if err := utils.WriteLedger(contract_in_company1, stub, "ContractName", []string{contract_in_company1.ContractName}); err != nil {
 		return shim.Error(fmt.Sprintf("%s", err))
@@ -421,14 +419,15 @@ func InitLedger(stub shim.ChaincodeStubInterface) pb.Response {
 
 //创建合同
 func StartContract(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	if len(args) != 4 {
+	if len(args) != 5 {
 		return shim.Error(fmt.Sprintf("参数长度不满足"))
 	}
 	contractname := args[0]
 	departmentname := args[1]
 	signature := args[2]
 	contractcontent := args[3]
-	if departmentname == "" || signature == "" || contractcontent == "" || contractname == "" {
+	companyname := args[4]
+	if departmentname == "" || signature == "" || contractcontent == "" || contractname == "" || companyname == "" {
 		return shim.Error(fmt.Sprintf("输入存在空值"))
 	}
 
@@ -446,6 +445,7 @@ func StartContract(stub shim.ChaincodeStubInterface, args []string) pb.Response 
 		CreaterName:     departmentname,
 		CreaterSign:     signature,
 		CreateTime:      createTime,
+		CompanyName:     companyname,
 	}
 	if err := utils.WriteLedger(contract_in_company, stub, "ContractName", []string{contract_in_company.ContractName}); err != nil {
 		return shim.Error(fmt.Sprintf("%s", err))
@@ -492,9 +492,9 @@ func ContractSanction(stub shim.ChaincodeStubInterface, args []string) pb.Respon
 	}
 	company_name := args[0]
 	signature := args[1]
-	ContractName := args[2]
+	contractname := args[2]
 	var query_args []string
-	query_args = append(query_args, ContractName)
+	query_args = append(query_args, contractname)
 	results, err := utils.GetStateByPartialCompositeKeys2(stub, "ContractName", query_args)
 	if len(results) != 1 {
 		return shim.Error(fmt.Sprintf("出现重复的合同名"))
@@ -507,19 +507,20 @@ func ContractSanction(stub shim.ChaincodeStubInterface, args []string) pb.Respon
 	}
 
 	timeUnix := time.Now().Unix() //时间戳
-	createTime := time.Unix(timeUnix, 0).Format("2006-01-02 15:04:05")
+	createtime := time.Unix(timeUnix, 0).Format("2006-01-02 15:04:05")
 
 	contract_among_company := model.Contract_among_company{
 		ContractName:       contract.ContractName,
 		ContractContent:    contract.ContractContent,
 		CreaterCompanyName: company_name,
 		CreaterCompanySign: signature,
-		CreateTime:         createTime,
+		SignTime:           createtime,
 	}
 	contractByte, err := json.Marshal(contract_among_company)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
+	fmt.Printf("arg:%v\n", contractByte)
 	return shim.Success(contractByte)
 }
 
