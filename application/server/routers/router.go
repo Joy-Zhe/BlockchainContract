@@ -24,6 +24,10 @@ func InitRouter() *gin.Engine {
 		apiV1.POST("/queryDonatingList", v1.QueryDonatingList)
 		apiV1.POST("/queryDonatingListByGrantee", v1.QueryDonatingListByGrantee)
 		apiV1.POST("/updateDonating", v1.UpdateDonating)
+		apiV1.POST("/StartContract", v1.StartContract)
+		apiV1.POST("/QueryContract_incompany", v1.QueryContract_incompany)
+		apiV1.POST("/ContractSanction_upload", v1.ContractSanction_upload)
+		apiV1.POST("/QueryContract_amongcompany", v1.QueryContract_amongcompany_1)
 	}
 	return r
 }
