@@ -28,6 +28,7 @@ func InitRouter() *gin.Engine {
 		apiV1.POST("/QueryContract_incompany", v1.QueryContract_incompany)
 		apiV1.POST("/ContractSanction_upload", v1.ContractSanction_upload)
 		apiV1.POST("/QueryContract_amongcompany", v1.QueryContract_amongcompany_1)
+		apiV1.POST("/QueryContract_state", v1.QueryContract_state)
 	}
 	return r
 }
