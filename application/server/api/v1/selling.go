@@ -368,3 +368,58 @@ func QueryContract_amongcompany_1(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, "成功", data)
 }
+
+func QueryContract_state(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body := new(Contract_request)
+	//解析Body参数
+	if err := c.ShouldBind(body); err != nil {
+		appG.Response(http.StatusBadRequest, "失败", fmt.Sprintf("参数出错%s", err.Error()))
+		return
+	}
+	if body.ContractName == "" || body.CompanyName == "" {
+		appG.Response(http.StatusBadRequest, "失败", "参数不能为空")
+		return
+	}
+	var bodyBytes [][]byte
+
+	bodyBytes = append(bodyBytes, []byte(body.ContractName))
+
+	//调用智能合约
+	resp1, err1 := bc.ChannelQuery_new("QueryContract_incompany", body.CompanyName, bodyBytes)
+	if err1 != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err1.Error())
+		return
+	}
+
+	//调用智能合约
+	resp2, err2 := bc.ChannelQuery_new("QueryContract_amongcompany", "Among_Companies", bodyBytes)
+	if err2 != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err2.Error())
+		return
+	}
+	// 反序列化json
+	var data1 []map[string]interface{}
+	if err1 = json.Unmarshal(bytes.NewBuffer(resp1.Payload).Bytes(), &data1); err1 != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err1.Error())
+		return
+	}
+	var data2 []map[string]interface{}
+	if err2 = json.Unmarshal(bytes.NewBuffer(resp2.Payload).Bytes(), &data2); err2 != nil {
+		appG.Response(http.StatusInternalServerError, "失败", err2.Error())
+		return
+	}
+	var result string
+
+	if len(data1) == 0 && len(data2) == 0 {
+		result = "no such contract"
+	} else if len(data1) == 0 {
+		result = "other company's contract"
+	} else if len(data2) == 0 {
+		result = "Unsigned contract"
+	}else{
+		result = "signed contract"
+	}
+
+	appG.Response(http.StatusOK, "成功", result)
+}
