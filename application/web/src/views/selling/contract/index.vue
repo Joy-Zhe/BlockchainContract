@@ -1,45 +1,51 @@
 <template>
     <div class="contract-container">
       <el-row justify="center">
-        <el-col :span="3000">
+        <el-col :span="2999">
           <el-card>
             <div slot="header" class="clearfix">
               <span>合同信息</span>
             </div>
-            <div class="item">
-              <el-tag type="success">合同甲方: </el-tag>
-              <span>{{ partyA }}</span>
+            <!-- 省略合同信息显示部分 -->
+  
+            <!-- 添加发起合同按钮 -->
+            <div class="item" v-if="!editingContract">
+              <el-button type="primary" @click="startEditingContract">发起合同</el-button>
             </div>
-            <div class="item">
-              <el-tag type="warning">合同乙方: </el-tag>
-              <span>{{ partyB }}</span>
-            </div>
-            <div class="item">
-              <el-tag type="info">状态: </el-tag>
-              <span>{{ contractStatus }}</span>
-            </div>
-            <div class="item" v-if="contractStatus === '待签订'">
-              <el-button type="primary" @click="agreeContract">同意签订</el-button>
-              <el-button type="danger" @click="rejectContract">拒绝签订</el-button>
-              <el-button @click="openModifyDialog">修改合同</el-button>
-            </div>
-            <div class="item" v-else>
-              <el-button @click="openModifyDialog">修改合同</el-button>
+            <!-- 控制合同编辑界面的显示 -->
+            <div v-if="editingContract">
+              <el-button @click="cancelEditingContract">取消编辑</el-button>
+              <el-dialog
+                title="编辑合同"
+                :visible="editingContract"
+                @close="cancelEditingContract"
+              >
+                <!-- 在这里添加编辑合同的表单 -->
+                <el-form :model="contractData" label-width="100px">
+                  <el-form-item label="合同名称">
+                    <el-input v-model="contractData.contractName"></el-input>
+                  </el-form-item>
+                  <el-form-item label="合同内容">
+                    <el-input type="textarea" v-model="contractData.contractContent"></el-input>
+                  </el-form-item>
+                  <el-form-item label="创建者名称">
+                    <el-input v-model="contractData.creatorName" disabled></el-input>
+                  </el-form-item>
+                  <el-form-item label="创建者公司">
+                    <el-input v-model="contractData.creatorCompany" disabled></el-input>
+                  </el-form-item>
+                  <el-form-item label="创建时间">
+                    <el-input v-model="contractData.createTime" disabled></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="submitContract">提交合同</el-button>
+                  </el-form-item>
+                </el-form>
+              </el-dialog>
             </div>
           </el-card>
         </el-col>
       </el-row>
-      <el-dialog
-        title="修改合同"
-        :visible="modifyDialogVisible"
-        @close="modifyDialogVisible = false"
-      >
-        <!-- 在这里添加修改合同的表单或内容 -->
-        <!-- 例如： -->
-        <!-- <el-form :model="formData">
-          ... 表单内容 ...
-        </el-form> -->
-      </el-dialog>
     </div>
   </template>
   
@@ -47,27 +53,24 @@
   export default {
     data() {
       return {
-        partyA: '甲方公司',
-        partyB: '乙方公司',
-        contractStatus: '待签订', // 初始状态为待签订，可根据实际情况修改
-        modifyDialogVisible: false, // 控制修改合同对话框的显示状态
-        // formData: {}, // 如果需要修改合同的表单数据，可以在这里定义
+        editingContract: false,
+        contractData: {
+          contractName: '合同名称', // 合同名称，自主填写
+          contractContent: '合同内容', // 合同内容，自主填写
+          creatorName: '自动获取的创建者名称', // 自动获取的创建者名称
+          creatorCompany: '自动获取的创建者公司', // 自动获取的创建者公司
+          createTime: '自动获取的创建时间', // 自动获取的创建时间
+        },
       };
     },
     methods: {
-      agreeContract() {
-        // 同意签订合同的逻辑
-        this.contractStatus = '已签订';
+      startEditingContract() {
+        this.editingContract = true;
       },
-      rejectContract() {
-        // 拒绝签订合同的逻辑
-        this.contractStatus = '已拒绝';
+      cancelEditingContract() {
+        this.editingContract = false;
       },
-      openModifyDialog() {
-        // 打开修改合同对话框
-        this.modifyDialogVisible = true;
-      },
-      // 可以添加其他处理修改合同的方法
+      // 可以添加其他处理编辑合同的方法
     },
   };
   </script>
