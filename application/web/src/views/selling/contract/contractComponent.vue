@@ -52,6 +52,7 @@
         contractStatus: '待签订', // 初始状态为待签订，可根据实际情况修改
         modifyDialogVisible: false, // 控制修改合同对话框的显示状态
         // formData: {}, // 修改合同的表单数据，可以在这里定义
+        currentTime: '',
       };
     },
     methods: {
