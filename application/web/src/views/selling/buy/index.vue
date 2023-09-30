@@ -1,18 +1,36 @@
 <template>
   <div class="container">
-    <el-alert
-      type="success"
-    >
-      <p>账户ID: {{ accountId }}</p>
-      <p>用户名: {{ userName }}</p>
-      <p>余额: ￥{{ balance }} 元</p>
-    </el-alert>
-    <div v-if="sellingList.length==0" style="text-align: center;">
-      <el-alert
-        title="查询不到数据"
-        type="warning"
-      />
-    </div>
+    <el-card type="success" class="CompanyInfoCard">
+      <div class="company">
+        <div class="company-logo">
+          <img src="https://img.alicdn.com/tfs/TB1Z1Q1QFXXXXX5XpXXXXXXXXXX-1024-1024.png" alt="logo">
+          <div class="company-name">
+            <p class="cname">{{ userName }}</p>
+            <p class="ctag">用户名</p>
+          </div>
+          <div class="company-info">
+            <p>账户ID: {{ accountId }}</p>
+            <!-- <p>用户名: {{ userName }}</p> -->
+            <p>余额: ￥{{ balance }} 元</p>
+          </div>
+        </div>
+      </div>"
+      <!-- <div slot="header" class="clearfix">
+        <span>企业信息</span>
+      </div>
+      <div class="item">
+        <el-tag type="success">账户ID: </el-tag>
+        <span>{{ accountId }}</span>
+      </div>
+      <div class="item">
+        <el-tag type="warning">用户名: </el-tag>
+        <span>{{ userName }}</span>
+      </div>
+      <div class="item">
+        <el-tag type="danger">余额: </el-tag>
+        <span>￥{{ balance }} 元</span>
+      </div> -->
+    </el-card>
     <el-row v-loading="loading" :gutter="20">
       <el-col v-for="(val,index) in sellingList" :key="index" :span="6" :offset="1">
         <el-card class="buy-card">

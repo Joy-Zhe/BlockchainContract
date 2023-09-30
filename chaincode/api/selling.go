@@ -484,6 +484,74 @@ func QueryContract_incompany(stub shim.ChaincodeStubInterface, args []string) pb
 	return shim.Success(contractListByte)
 
 }
+//创建合同
+func ContractSanction_upload(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
+	contract_among_company_Byte := args[0]
+	fmt.Printf("arg:%v\n", args[0])
+	/*companyname := args[1]
+	companysignature := args[2]*/
+
+	var contract_among_company model.Contract_among_company
+	err := json.Unmarshal([]byte(contract_among_company_Byte), &contract_among_company)
+
+	/*contractname := contract_among_company.ContractName
+	contractcontent := contract_among_company.ContractContent*/
+	//判断私钥签名是否属于此部门
+	/*
+		未完成
+	*/
+
+	//时间戳
+	/*timeUnix := time.Now().Unix() //时间戳
+	signtime := time.Unix(timeUnix, 0).Format("2006-01-02 15:04:05")
+	contract_among_company := model.Contract_among_company{
+		ContractName:       contractname,
+		ContractContent:    contractcontent,
+		CreaterCompanyName: companyname,
+		CreaterCompanySign: companysignature,
+		CreateTime:         createTime,
+	}
+	//更新时间
+	contract_among_company.SignTime = signtime*/
+	if err := utils.WriteLedger(contract_among_company, stub, "ContractName", []string{contract_among_company.ContractName}); err != nil {
+		return shim.Error(fmt.Sprintf("%s", err))
+	}
+
+	contractByte, err := json.Marshal(contract_among_company)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("序列化成功创建的信息出错: %s", err))
+	}
+
+	return shim.Success(contractByte)
+}
+
+//按照合同名查询&查询全部
+func QueryContract_amongcompany(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
+	results, err := utils.GetStateByPartialCompositeKeys2(stub, "ContractName", args)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("%s", err))
+	}
+	var contractList []model.Contract_among_company
+	for _, v := range results {
+		if v != nil {
+			var contract model.Contract_among_company
+			err := json.Unmarshal(v, &contract)
+			if err != nil {
+				return shim.Error(fmt.Sprintf("QueryContract_amongcompany-反序列化出错: %s", err))
+			}
+			contractList = append(contractList, contract)
+		}
+	}
+
+	contractListByte, err := json.Marshal(contractList)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("QueryContract_amongcompany-序列化出错: %s", err))
+	}
+	return shim.Success(contractListByte)
+
+}
 
 // 审核，生成放入跨公司区块的文本【需要调用公司间区块的链码ContractSanction_upload上传】
 func ContractSanction(stub shim.ChaincodeStubInterface, args []string) pb.Response {

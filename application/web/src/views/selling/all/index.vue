@@ -1,12 +1,45 @@
 <template>
   <div class="container">
-    <el-alert
+    <!-- <el-alert
       type="success"
     >
       <p>账户ID: {{ accountId }}</p>
       <p>用户名: {{ userName }}</p>
       <p>余额: ￥{{ balance }} 元</p>
-    </el-alert>
+    </el-alert> -->
+    <el-card type="success" class="CompanyInfoCard">
+      <div class="company">
+        <div class="company-logo">
+          <img src="https://img.alicdn.com/tfs/TB1Z1Q1QFXXXXX5XpXXXXXXXXXX-1024-1024.png" alt="logo">
+          <div class="company-name">
+            <p class="cname">{{ userName }}</p>
+            <p class="ctag">用户名</p>
+          </div>
+          <div class="company-info">
+            <p>账户ID: {{ accountId }}</p>
+            <!-- <p>用户名: {{ userName }}</p> -->
+            <p>余额: ￥{{ balance }} 元</p>
+          </div>
+        </div>
+      </div>"
+      <!-- <div slot="header" class="clearfix">
+        <span>企业信息</span>
+      </div>
+      <div class="item">
+        <el-tag type="success">账户ID: </el-tag>
+        <span>{{ accountId }}</span>
+      </div>
+      <div class="item">
+        <el-tag type="warning">用户名: </el-tag>
+        <span>{{ userName }}</span>
+      </div>
+      <div class="item">
+        <el-tag type="danger">余额: </el-tag>
+        <span>￥{{ balance }} 元</span>
+      </div> -->
+    </el-card>
+    
+    
     <div v-if="sellingList.length==0" style="text-align: center;">
       <el-alert
         title="查询不到数据"
@@ -172,7 +205,7 @@ export default {
 
 </script>
 
-<style>
+<style lang="scss">
   .container{
     width: 100%;
     text-align: center;
@@ -202,4 +235,43 @@ export default {
     height: 380px;
     margin: 18px;
   }
+  .CompanyInfoCard {
+    align-items: center;
+    width: 70%;
+    height: 380px;
+    margin: 18px;
+    /* align-items: center; */
+    .company{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .company-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #999;
+        .cname{
+          font-size: 18px;
+          font-weight: bold;
+          color: #333;
+          margin-bottom: 10px;
+        }
+        .ctag{
+          font-size: 14px;
+          color: #999;
+          margin-bottom: 10px;
+        }
+      }
+      .company-info {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 10px;
+      }
+    }
+  }
+  
 </style>

@@ -78,7 +78,12 @@ func (t *BlockChainRealEstate) Invoke(stub shim.ChaincodeStubInterface) pb.Respo
 	        return api.StartContract(stub, args)
         case "QueryContract_incompany":
 	        return api.QueryContract_incompany(stub, args)
-	/*    */
+		case "ContractSanction_upload":
+			return api.ContractSanction_upload(stub, args)
+		case "QueryContract_amongcompany":
+			return api.QueryContract_amongcompany(stub, args)
+			
+			/*    */
 	default:
 		return shim.Error(fmt.Sprintf("没有该功能: %s", funcName))
 	}
