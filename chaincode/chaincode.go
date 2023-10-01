@@ -74,10 +74,18 @@ func (t *BlockChainRealEstate) Invoke(stub shim.ChaincodeStubInterface) pb.Respo
 	case "updateDonating":
 		return api.UpdateDonating(stub, args)
 	/*新增*/
-        case "StartContract":
-	        return api.StartContract(stub, args)
-        case "QueryContract_incompany":
-	        return api.QueryContract_incompany(stub, args)
+        case "InitLedger":
+		return api.InitLedger(stub)
+	case "StartContract":
+		return api.StartContract(stub, args)
+	case "QueryContract_incompany":
+		return api.QueryContract_incompany(stub, args)
+	case "ContractSanction":
+		return api.ContractSanction(stub, args)
+	case "ContractSanction_upload":
+		return api.ContractSanction_upload(stub, args)
+	case "QueryContract_amongcompany":
+		return api.QueryContract_amongcompany(stub, args)
 	/*    */
 	default:
 		return shim.Error(fmt.Sprintf("没有该功能: %s", funcName))
