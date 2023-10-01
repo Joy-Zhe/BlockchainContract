@@ -323,7 +323,7 @@ func ContractSanction_upload(c *gin.Context) {
 	}*/
 
 	var bodyBytes_2 [][]byte
-	bodyBytes_2 = append(bodyBytes_2, []byte(string(resp_1.Payload)))
+	bodyBytes_2 = append(bodyBytes_2, resp_1.Payload)
 	//定义公司间通道为"Among_Companies"
 	resp_2, err := bc.ChannelExecute_new("ContractSanction_upload", "Among_Companies", bodyBytes_2)
 	if err != nil {
@@ -337,6 +337,7 @@ func ContractSanction_upload(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, "成功", data)
 }
+
 
 func QueryContract_amongcompany_1(c *gin.Context) {
 	appG := app.Gin{C: c}
