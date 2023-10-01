@@ -63,3 +63,15 @@ Profiles:
       Organizations:
         - *Taobao
         - *JD
+  TaobaoChannel:
+    Consortium: SampleConsortium
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Taobao
+  JDChannel:
+    Consortium: SampleConsortium
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *JD
