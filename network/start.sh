@@ -31,6 +31,9 @@ configtxgen -profile TwoOrgsOrdererGenesis -outputBlock ./config/genesis.block -
 
 echo "四、生成通道配置事务'appchannel.tx'"
 configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./config/appchannel.tx -channelID appchannel
+configtxgen -profile TaobaoChannel -outputCreateChannelTx ./config/Taobaochannel.tx -channelID Taobaochannel
+configtxgen -profile JDChannel -outputCreateChannelTx ./config/JDChannel.tx -channelID JDchannel
+
 
 echo "五、为 Taobao 定义锚节点"
 configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./config/TaobaoAnchor.tx -channelID appchannel -asOrg Taobao
@@ -56,6 +59,14 @@ docker exec cli bash -c "$TaobaoPeer0Cli peer channel join -b appchannel.block"
 docker exec cli bash -c "$TaobaoPeer1Cli peer channel join -b appchannel.block"
 docker exec cli bash -c "$JDPeer0Cli peer channel join -b appchannel.block"
 docker exec cli bash -c "$JDPeer1Cli peer channel join -b appchannel.block"
+
+docker exec cli bash -c "$TaobaoPeer0Cli peer channel create -o orderer.qq.com:7050 -c Taobaochannel -f /etc/hyperledger/config/Taobaochannel.tx"
+docker exec cli bash -c "$TaobaoPeer1Cli peer channel join -b Taobaochannel.block"
+
+
+docker exec cli bash -c "$JDPeer0Cli peer channel create -o orderer.qq.com:7050 -c Taobaochannel -f /etc/hyperledger/config/Taobaochannel.tx"
+docker exec cli bash -c "$JDPeer1Cli peer channel join -b Taobaochannel.block"
+
 
 echo "九、更新锚节点"
 docker exec cli bash -c "$TaobaoPeer0Cli peer channel update -o orderer.qq.com:7050 -c appchannel -f /etc/hyperledger/config/TaobaoAnchor.tx"
