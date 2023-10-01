@@ -61,11 +61,13 @@ docker exec cli bash -c "$JDPeer0Cli peer channel join -b appchannel.block"
 docker exec cli bash -c "$JDPeer1Cli peer channel join -b appchannel.block"
 
 docker exec cli bash -c "$TaobaoPeer0Cli peer channel create -o orderer.qq.com:7050 -c Taobaochannel -f /etc/hyperledger/config/Taobaochannel.tx"
+docker exec cli bash -c "$TaobaoPeer0Cli peer channel join -b Taobaochannel.block"
 docker exec cli bash -c "$TaobaoPeer1Cli peer channel join -b Taobaochannel.block"
 
 
-docker exec cli bash -c "$JDPeer0Cli peer channel create -o orderer.qq.com:7050 -c Taobaochannel -f /etc/hyperledger/config/Taobaochannel.tx"
-docker exec cli bash -c "$JDPeer1Cli peer channel join -b Taobaochannel.block"
+docker exec cli bash -c "$JDPeer0Cli peer channel create -o orderer.qq.com:7050 -c JDchannel -f /etc/hyperledger/config/JDchannel.tx"
+docker exec cli bash -c "$JDPeer0Cli peer channel join -b JDchannel.block"
+docker exec cli bash -c "$JDPeer1Cli peer channel join -b JDchannel.block"
 
 
 echo "九、更新锚节点"
