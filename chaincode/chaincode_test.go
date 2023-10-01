@@ -46,26 +46,53 @@ func TestBlockChainRealEstate_Init(t *testing.T) {
 	fmt.Println(fmt.Sprintf("2、创建合同\n%s",
 		string(checkInvoke(t, stub, [][]byte{
 			[]byte("StartContract"),
-			[]byte("6b273ff34"),
-			[]byte("StartContract"),
-			[]byte("6b273ff34"),
-			[]byte("6b34"),
+			[]byte("contractname"),
+			[]byte("departmentname"),
+			[]byte("signature"),
+			[]byte("contractcontent"),
+			[]byte("companyname"),
 		}).Payload)))
 	fmt.Println(fmt.Sprintf("3、查询合同\n%s",
 		string(checkInvoke(t, stub, [][]byte{
 			[]byte("QueryContract_incompany"),
-			[]byte("6b273ff34"),
+			[]byte("contractname"),
 		}).Payload)))
-	fmt.Println(fmt.Sprintf("3、查询合同\n%s",
+	fmt.Println(fmt.Sprintf("4、查询合同\n%s",
 		string(checkInvoke(t, stub, [][]byte{
 			[]byte("QueryContract_incompany"),
 		}).Payload)))
-	fmt.Println(fmt.Sprintf("4、签署合同\n%s",
+	fmt.Println(fmt.Sprintf("5、签署合同\n%s",
 		string(checkInvoke(t, stub, [][]byte{
 			[]byte("ContractSanction"),
-			[]byte("taobao"),
+			[]byte("companyname"),
 			[]byte("mayun"),
-			[]byte("6b273ff34"),
+			[]byte("contractname"),
+		}).Payload)))
+	fmt.Println("mmmmmm")
+
+	fmt.Println(fmt.Sprintf("6.0、上传合同\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("ContractSanction_upload"),
+			[]byte("{\"contractname\":\"contractname\"," +
+				"\"contractcontent\":\"contractcontent\",\"creatercompanyname\":" +
+				"\"companyname\",\"creatercompanysign\":\"mayun\",\"signtime\":" +
+				"\"2023-09-15 20:51:15\"}"),
+		}).Payload)))
+
+	fmt.Println(fmt.Sprintf("6、上传合同\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("ContractSanction_upload"),
+			(checkInvoke(t, stub, [][]byte{
+				[]byte("ContractSanction"),
+				[]byte("companyname"),
+				[]byte("mayun"),
+				[]byte("contractname"),
+			}).Payload),
+		}).Payload)))
+	fmt.Println(fmt.Sprintf("7、查询合同\n%s",
+		string(checkInvoke(t, stub, [][]byte{
+			[]byte("QueryContract_amongcompany"),
+			[]byte("contractname"),
 		}).Payload)))
 }
 
