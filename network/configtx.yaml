@@ -55,6 +55,24 @@ Profiles:
         Organizations:
           - *Taobao
           - *JD
+  TaobaoOrgsOrdererGenesis:
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *QQ
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *Taobao
+  JDOrgsOrdererGenesis:
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *QQ
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *JD
   # 使用TwoOrgsChannel配置文件创建应用程序通道
   TwoOrgsChannel:
     Consortium: SampleConsortium
@@ -62,4 +80,16 @@ Profiles:
       <<: *ApplicationDefaults
       Organizations:
         - *Taobao
+        - *JD
+  TaobaoChannel:
+    Consortium: SampleConsortium
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Taobao
+  JDChannel:
+    Consortium: SampleConsortium
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
         - *JD
