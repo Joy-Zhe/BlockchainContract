@@ -28,11 +28,14 @@ cryptogen generate --config=./crypto-config.yaml
 
 echo "三、创建排序通道创世区块"
 configtxgen -profile TwoOrgsOrdererGenesis -outputBlock ./config/genesis.block -channelID firstchannel
+#configtxgen -profile TaobaoOrgsOrdererGenesis -outputBlock ./config/taobao-genesis.block -channelID secondchannel
+#configtxgen -profile JDOrgsOrdererGenesis -outputBlock ./config/jd-genesis.block -channelID thirdchannel
 
-echo "四、生成通道配置事务'appchannel.tx'"
+
+echo "四、生成通道配置事务"
 configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./config/appchannel.tx -channelID appchannel
-configtxgen -profile TaobaoChannel -outputCreateChannelTx ./config/Taobaochannel.tx -channelID Taobaochannel
-configtxgen -profile JDChannel -outputCreateChannelTx ./config/JDChannel.tx -channelID JDchannel
+configtxgen -profile TaobaoChannel -outputCreateChannelTx ./config/taobaochannel.tx -channelID taobaochannel
+configtxgen -profile JDChannel -outputCreateChannelTx ./config/jdchannel.tx -channelID jdchannel
 
 
 echo "五、为 Taobao 定义锚节点"
@@ -60,14 +63,14 @@ docker exec cli bash -c "$TaobaoPeer1Cli peer channel join -b appchannel.block"
 docker exec cli bash -c "$JDPeer0Cli peer channel join -b appchannel.block"
 docker exec cli bash -c "$JDPeer1Cli peer channel join -b appchannel.block"
 
-docker exec cli bash -c "$TaobaoPeer0Cli peer channel create -o orderer.qq.com:7050 -c Taobaochannel -f /etc/hyperledger/config/Taobaochannel.tx"
-docker exec cli bash -c "$TaobaoPeer0Cli peer channel join -b Taobaochannel.block"
-docker exec cli bash -c "$TaobaoPeer1Cli peer channel join -b Taobaochannel.block"
+docker exec cli bash -c "$TaobaoPeer0Cli peer channel create -o orderer.qq.com:7050 -c taobaochannel -f /etc/hyperledger/config/taobaochannel.tx"
+docker exec cli bash -c "$TaobaoPeer0Cli peer channel join -b taobaochannel.block"
+docker exec cli bash -c "$TaobaoPeer1Cli peer channel join -b taobaochannel.block"
 
 
-docker exec cli bash -c "$JDPeer0Cli peer channel create -o orderer.qq.com:7050 -c JDchannel -f /etc/hyperledger/config/JDchannel.tx"
-docker exec cli bash -c "$JDPeer0Cli peer channel join -b JDchannel.block"
-docker exec cli bash -c "$JDPeer1Cli peer channel join -b JDchannel.block"
+docker exec cli bash -c "$JDPeer0Cli peer channel create -o orderer.qq.com:7050 -c jdchannel -f /etc/hyperledger/config/jdchannel.tx"
+docker exec cli bash -c "$JDPeer0Cli peer channel join -b jdchannel.block"
+docker exec cli bash -c "$JDPeer1Cli peer channel join -b jdchannel.block"
 
 
 echo "九、更新锚节点"
@@ -93,8 +96,8 @@ docker exec cli bash -c "$JDPeer1Cli peer chaincode install -n fabric-realty -v 
 # -c 为传参，传入init参数
 echo "十一、实例化链码"
 docker exec cli bash -c "$TaobaoPeer0Cli peer chaincode instantiate -o orderer.qq.com:7050 -C appchannel -n fabric-realty -l golang -v 1.0.0 -c '{\"Args\":[\"init\"]}' -P \"AND ('TaobaoMSP.member','JDMSP.member')\""
-docker exec cli bash -c "$TaobaoPeer0Cli peer chaincode instantiate -o orderer.qq.com:7050 -C Taobaochannel -n fabric-realty -l golang -v 1.0.0 -c '{\"Args\":[\"init\"]}' -P \"AND ('TaobaoMSP.member','JDMSP.member')\""
-docker exec cli bash -c "$JDPeer0Cli peer chaincode instantiate -o orderer.qq.com:7050 -C JDchannel -n fabric-realty -l golang -v 1.0.0 -c '{\"Args\":[\"init\"]}' -P \"AND ('TaobaoMSP.member','JDMSP.member')\""
+docker exec cli bash -c "$TaobaoPeer0Cli peer chaincode instantiate -o orderer.qq.com:7050 -C taobaochannel -n fabric-realty -l golang -v 1.0.0 -c '{\"Args\":[\"init\"]}' -P \"OR ('TaobaoMSP.member', 'JDMSP.member')\"" -E
+docker exec cli bash -c "$JDPeer0Cli peer chaincode instantiate -o orderer.qq.com:7050 -C jdchannel -n fabric-realty -l golang -v 1.0.0 -c '{\"Args\":[\"init\"]}' -P \"OR ('TaobaoMSP.member', 'JDMSP.member')\"" -E
 
 
 echo "正在等待链码实例化完成，等待5秒"
@@ -102,11 +105,24 @@ sleep 5
 
 # 进行链码交互，验证链码是否正确安装及区块链网络能否正常工作
 echo "十二、验证链码"
+
 docker exec cli bash -c "$TaobaoPeer0Cli peer chaincode invoke -C appchannel -n fabric-realty -c '{\"Args\":[\"hello\"]}'"
 
 if docker exec cli bash -c "$JDPeer0Cli peer chaincode invoke -C appchannel -n fabric-realty -c '{\"Args\":[\"hello\"]}'" 2>&1 | grep "Chaincode invoke successful"; then
   echo "【恭喜您！】 network 部署成功，后续如需暂时停止运行，可以执行 docker-compose stop 命令（不会丢失数据）。"
+
+  docker exec cli bash -c "$TaobaoPeer0Cli peer chaincode invoke -C taobaochannel -n fabric-realty -c '{\"Args\":[\"hello\"]}'"
+
+  if docker exec cli bash -c "$TaobaoPeer0Cli peer chaincode invoke -C taobaochannel -n fabric-realty -c '{\"Args\":[\"hello\"]}'" 2>&1 | grep "Chaincode invoke successful"; then
+    echo "taobao finished!!!!!!!!!!!!!!"
+    docker exec cli bash -c "$JDPeer0Cli peer chaincode invoke -C jdchannel -n fabric-realty -c '{\"Args\":[\"hello\"]}'"
+    if docker exec cli bash -c "$JDPeer1Cli peer chaincode invoke -C jdchannel -n fabric-realty -c '{\"Args\":[\"hello\"]}'" 2>&1 | grep "Chaincode invoke successful"; then
+      echo "JD finished!!!!!!!!!!!!!!!!"
+    fi
+  
+  fi
   exit 0
 fi
+
 
 echo "【警告】network 未部署成功，请检查每一个步骤，定位具体问题。"
